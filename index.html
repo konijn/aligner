@@ -4,13 +4,67 @@
         <meta charset="utf-8">
         <title>Aligner</title>
         <style>
-          textarea : { width:100% }
+          textarea  { width:100% ;  height: 200px }
+          .emo { margin-top: 10px ; margin-bottom: 10px }
         </style>
     </head>
     <body>
-        <h2>Aligner</h2>
-        <textarea>
-        </textarea>
+      <h2>Aligner</h2>
+      <label>Editor:</label><br>
+      <textarea id="editor">
+  DATA : wa_ekpo TYPE ekpo.
+  DATA : wa_eket TYPE eket.
+  DATA : wa_decision TYPE zrms_performance_decision.
+  DATA : wa_receipt_item TYPE zrmt_rcpt_items.
+  DATA : wa_container TYPE zrmt_rcpt_hdrs_c.    
+      </textarea><br>
+      <label class="emo">Align at</label>
+      <input type="text" id="token" class="emo" value="TYPE">
+      <button type="button" id= "button">Align</button><br>
+      <label>Output:</label><br>
+      <textarea id="output"></textarea><br>
+      <script>
+        //Do the DOM querying once, the DOM elements are stable
+        var editor = document.getElementById( 'editor' ),
+            output = document.getElementById( 'output' ),
+            token  = document.getElementById( 'token'  ),
+            button = document.getElementById( 'button' );
+        
+        //What happens when we click that button
+        button.addEventListener( 'click' , function( e )
+        {
+          var lines = editor.value.split('\n'),
+              columnSizes = {};
+          //Collect for each line the size of each column, keep the largest column size  
+          lines.forEach( function( line )
+          {
+            var columns = line.split( token.value );
+            columns.forEach( function( column , index )
+            {
+              columnSizes[index] = Math.max( column.length , columnSizes[index] || 0 );
+            });
+          });
+            
+          //Build up the new text with aligned columns  
+          output.value = lines.map( function( line )
+          {
+            var columns = line.split( token.value );
+            return columns.map( function( column , index )
+            {
+              return column + spaces( columnSizes[index] - column.length );
+            }).join( token.value );
+          }).join('\n');
+            
+          //Make sure Firefox does not go haywire  
+          e.preventDefault();
+        }, false);
+        
+        //Return a string with count spaces       
+        function spaces( count )
+        {
+          return new Array( count + 1 ).join( " " );
+        }
+      </script>
     </body>
 </html>
 
